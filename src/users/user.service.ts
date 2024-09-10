@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
 import { sendEmailTemplate } from '../utils/mail.service';
-import { sendWebhook } from '../utils/discordlogs.util';
+import * as bcrypt from 'bcrypt';
 import moment from 'moment';
 
 @Injectable()
@@ -12,26 +11,28 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createUser(email: string, password: string) {
-    const existingUser = await this.prisma.users.findFirst({ where: { email } });
+    const existingUser = await this.prisma.users.findFirst({
+      where: { email },
+    });
     if (existingUser) {
-      return { error: true, code: 400, message: 'Account with this email already exists' };
+      return {
+        error: true,
+        code: 400,
+        message: 'Account with this email already exists',
+      };
     }
 
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
-    const token = Buffer.from(`${Math.floor(Math.random() * 10)}.${Date.now().toString()}.${email}`).toString('base64');
+    const token = Buffer.from(
+      `${Math.floor(Math.random() * 10)}.${Date.now().toString()}.${email}`,
+    ).toString('base64');
 
     const user = await this.prisma.users.create({
       data: { email, password: hashedPassword, salt, token },
     });
 
     this.logger.log(`Account created by ${email}`);
-
-    await sendWebhook(
-      'https://discord.com/api/webhooks/1236070665304543332/tdVt1j315AVALBtM1YOzO-3y_kabzstkkCJolRFbMsyuCmZbz3hudq-uFUbSnjGbYITj',
-      'User Created',
-      user,
-    );
 
     await sendEmailTemplate('welcome', email, 'Witaj na pokładzie');
 
@@ -41,10 +42,16 @@ export class UserService {
   async requestPasswordReset(email: string) {
     const user = await this.prisma.users.findFirst({ where: { email } });
     if (!user) {
-      return { error: true, code: 404, message: 'Account with this email does not exist' };
+      return {
+        error: true,
+        code: 404,
+        message: 'Account with this email does not exist',
+      };
     }
 
-    const token = Buffer.from(`${Math.floor(Math.random() * 100)}.${Date.now().toString()}.${email}`).toString('base64');
+    const token = Buffer.from(
+      `${Math.floor(Math.random() * 100)}.${Date.now().toString()}.${email}`,
+    ).toString('base64');
 
     await sendEmailTemplate('reset', email, 'Resetowanie hasła', token);
 
@@ -85,7 +92,14 @@ export class UserService {
         geo = await response.json();
       }
       const date = moment().locale('pl').format('hh:mm DD.MM.YYYY');
-      await sendEmailTemplate('login', user.email, 'Nowe logowanie', ip, geo, date);
+      await sendEmailTemplate(
+        'login',
+        user.email,
+        'Nowe logowanie',
+        ip,
+        geo,
+        date,
+      );
     }
 
     this.logger.log(`User ${user.email} logged in from ${ip}`);

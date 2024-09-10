@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { createTransport } from "nodemailer";
 
 export async function sendEmailTemplate(
   template: string,
@@ -6,11 +7,13 @@ export async function sendEmailTemplate(
   subject: string,
   ...args: any[]
 ): Promise<void> {
-  const transporter = nodemailer.createTransport({
-    service: 'Gmail', // Użyj odpowiedniego dostawcy
+  const transporter = createTransport({
+    host: "smtp.zoho.eu",
+    port: 587,
+    secure: false,
     auth: {
-      user: process.env.EMAIL_USER, // Twoje konto e-mail
-      pass: process.env.EMAIL_PASS, // Hasło e-mail
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
@@ -18,7 +21,7 @@ export async function sendEmailTemplate(
 
   try {
     await transporter.sendMail({
-      from: '"Your App" <no-reply@example.com>', // Adres nadawcy
+      from: '"fvst.pl" <hello@fvst.pl>', // Adres nadawcy
       to: to,
       subject: subject,
       html: html,
@@ -29,6 +32,5 @@ export async function sendEmailTemplate(
 }
 
 function getEmailTemplate(template: string, ...args: any[]): string {
-  // Wstaw logikę generowania szablonów e-maili
   return `<p>Your email content based on the ${template} template.</p>`;
 }
