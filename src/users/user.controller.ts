@@ -41,7 +41,7 @@ export class UserController {
     }
 
     const result = await this.userService.requestPasswordReset(email);
-    res.status(result.code).json(result);
+    res.status(200).json(result);
   }
 
   @Put('reset')
