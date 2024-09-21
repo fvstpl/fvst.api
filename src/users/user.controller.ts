@@ -5,6 +5,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ResetRequestDto } from './dto/reset-request.dto';
 
 import { Request, Response } from 'express';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -60,8 +61,8 @@ export class UserController {
   }
 
   @Post('token')
-  async login(@Body() body: { email: string; password: string; ip?: string }, @Res() res: Response) {
-    const { email, password, ip } = body;
+  async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
+    const { email, password, ip } = loginUserDto;
     if (!email || !password) {
       return res.status(HttpStatus.FORBIDDEN).json({
         error: true,
@@ -70,7 +71,7 @@ export class UserController {
       });
     }
 
-    const result = await this.userService.login(email, password, ip);
+    const result = await this.userService.login(loginUserDto);
     res.status(result.code).json(result);
   }
 

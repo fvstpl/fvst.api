@@ -36,6 +36,8 @@ function getEmailTemplate(template: string, ...args: any[]): string {
       return getResetPasswordTemplate(args[0]); // args[0] to token resetu
     case 'welcome':
       return getWelcomeTemplate();
+    case 'login':
+      return getLoginTemplate(args[0]);
     default:
       return '<p>Invalid template name.</p>';
   }
@@ -203,7 +205,58 @@ function getWelcomeTemplate(): string {
 
   `;
 }
-
+function getLoginTemplate(email: string): string {
+  return `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logowanie do fvst</title>
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #ffffff;
+          color: #000000;
+          padding: 20px;
+          margin: 0;
+      }
+      .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+          color: #000000;
+      }
+      p {
+          line-height: 1.6;
+      }
+      .footer {
+          margin-top: 20px;
+          font-size: 12px;
+          color: #999;
+          text-align: center;
+      }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Logowanie do fvst.pl</h1>
+  <p>Cześć, ${email},</p>
+  <p>Oto link do logowania do Twojego konta:</p>
+  <a href="https://fvst.pl/login" class="button">Zaloguj się</a>
+  <p>Jeśli nie rejestrowałeś się, zignoruj tę wiadomość.</p>
+  <p>Z pozdrowieniami,<br>Zespół fvst.pl</p>
+  <div class="footer">
+    <p>&copy; 2024 fvst.pl. Wszystkie prawa zastrzeżone.</p>
+  </div>
+</div>
+</body>
+</html>`;
+}
 function getFooter(): string {
   return `
   <footer style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #e0e0e0;">

@@ -8,14 +8,14 @@ datasource db {
 }
 
 model Users {
-  id        String   @unique @default(uuid())
+  id        String   @id @default(uuid())
   email     String   @unique
   password  String
   salt      String
-  adress    String?
-  firstname String?
-  lastname  String?
-  dob       String?
+  address   String?
+  firstName String?
+  lastName  String?
+  dob       DateTime?
   token     String
   role      String   @default("user")
   shops     Shops[]
@@ -24,7 +24,7 @@ model Users {
 }
 
 model Shops {
-  id          String       @unique @default(uuid())
+  id          String       @id @default(uuid())
   userId      String
   user        Users        @relation(fields: [userId], references: [id])
   label       String
@@ -46,9 +46,8 @@ model Shops {
   updatedAt   DateTime     @default(now()) @updatedAt
 }
 
-
 model ShopStats {
-  id             String     @unique @default(uuid())
+  id             String     @id @default(uuid())
   shopId         String
   shop           Shops      @relation(fields: [shopId], references: [id])
   timestamp      DateTime   @default(now())
@@ -59,7 +58,7 @@ model ShopStats {
 }
 
 model Categories {
-  id        String     @unique @default(uuid())
+  id        String     @id @default(uuid())
   shopId    String
   shop      Shops      @relation(fields: [shopId], references: [id])
   label     String
@@ -70,11 +69,11 @@ model Categories {
 }
 
 model Products {
-  id              String      @unique
-  Categories      Categories? @relation(fields: [CategoriesId], references: [id])
-  CategoriesId    String?
-  Shops           Shops?      @relation(fields: [shopsId], references: [id])
-  shopsId         String?
+  id              String      @id @default(uuid())
+  categories      Categories? @relation(fields: [categoriesId], references: [id])
+  categoriesId    String?
+  shops           Shops?      @relation(fields: [shopId], references: [id])
+  shopId          String?
   label           String
   icon            String?
   hasVariants     Boolean     @default(false)
@@ -89,16 +88,16 @@ model Products {
 }
 
 model Servers {
-  id       String  @unique @default(uuid())
+  id       String  @id @default(uuid())
   name     String
   type     String
   metadata Json    @default("{}")
-  Shops    Shops?  @relation(fields: [shopId], references: [id])
+  shop     Shops?  @relation(fields: [shopId], references: [id])
   shopId   String?
 }
 
 model Payments {
-  id        String   @unique @default(uuid())
+  id        String   @id @default(uuid())
   sessionId String   @unique
   type      String
   price     Decimal
@@ -113,8 +112,8 @@ model Payments {
 }
 
 model Payouts {
-  id        String   @unique @default(uuid())
-  Shop      Shops?   @relation(fields: [shopId], references: [id])
+  id        String   @id @default(uuid())
+  shop      Shops?   @relation(fields: [shopId], references: [id])
   shopId    String?
   amount    Float    @db.Float()
   status    String   @default("pending")
@@ -123,6 +122,6 @@ model Payouts {
 }
 
 model Meta {
-  id            String   @unique @default(uuid())
+  id            String   @id @default(uuid())
   lastUpdated   DateTime @default(now())
 }

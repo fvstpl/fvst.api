@@ -2,7 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { sendEmailTemplate } from '../utils/mail.service';
 import * as bcrypt from 'bcrypt';
-import moment from 'moment';
+import * as moment from 'moment';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UserService {
@@ -79,14 +80,14 @@ export class UserService {
     return { status: 'OK' };
   }
 
-  async login(email: string, password: string, ip?: string) {
-    const user = await this.prisma.users.findFirst({ where: { email } });
-    if (!user || !bcrypt.compareSync(password, user.password)) {
+  async login(loginUserDto: LoginUserDto) {
+    const user = await this.prisma.users.findFirst({ where: { email: loginUserDto.email } });
+    if (!user || !bcrypt.compareSync(loginUserDto.password, user.password)) {
       return { error: true, code: 403, message: 'Bad credentials' };
     }
 
-    if (ip) {
-      const response = await fetch(`http://ip-api.com/json/${ip}`);
+    if (loginUserDto.ip) {
+      const response = await fetch(`http://ip-api.com/json/${loginUserDto.ip}`);
       let geo = null;
       if (response.ok) {
         geo = await response.json();
@@ -96,19 +97,19 @@ export class UserService {
         'login',
         user.email,
         'Nowe logowanie',
-        ip,
+        loginUserDto.ip,
         geo,
         date,
       );
     }
 
-    this.logger.log(`User ${user.email} logged in from ${ip}`);
+    this.logger.log(`User ${user.email} logged in from ${loginUserDto.ip}`);
 
-    return { token: user.token, id: user.id };
+    return { token: user.token, id: user.id, code: 200 };
   }
 
   async updateUserCache(id: string) {
-    // Implementacja aktualizacji cache, jeśli to konieczne
+   
     return { status: 'OK' };
   }
 
