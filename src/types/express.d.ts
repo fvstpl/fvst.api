@@ -7,6 +7,12 @@ declare global {
         id: string;
         role: string;
       };
+      shop?: {
+        categories: any[];
+        limits: any;
+        id: string;
+        
+      }
     }
   }
 }

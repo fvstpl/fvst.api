@@ -8,11 +8,20 @@ export class RedisService {
 
   constructor() {
     this.client = createClient({
-      url: 'redis://localhost:6379' // Ustaw odpowiedni URL, jeśli jest inny
+      username: process.env.REDIS_USER,
+      password: process.env.REDIS_PASSWORD,
+      socket: {
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT),
+      },
     });
 
-    this.client.on('error', (err) => this.logger.error('Redis Client Error', err));
-    this.client.connect().catch((err) => this.logger.error('Failed to connect to Redis', err));
+    this.client.on('error', (err) =>
+      this.logger.error('Redis Client Error', err),
+    );
+    this.client
+      .connect()
+      .catch((err) => this.logger.error('Failed to connect to Redis', err));
   }
 
   async set(key: string, value: string): Promise<void> {
