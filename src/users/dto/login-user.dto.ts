@@ -1,5 +1,4 @@
-import { IsEmail, IsIP, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { isIPv4 } from 'net';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class LoginUserDto {
   @IsEmail()
@@ -10,7 +9,6 @@ export class LoginUserDto {
   password: string;
 
   @IsOptional()
-  @IsIP()
   @IsString()
   ip?: string;
 }

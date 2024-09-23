@@ -15,7 +15,5 @@ export class CreateShopDto {
   @IsOptional()
   @IsString()
   @ApiProperty({ example: 'localhost:3000' })
-
-  domain?: string;  
-  
+  domain?: string;
 }

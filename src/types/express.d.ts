@@ -11,7 +11,6 @@ declare global {
         categories: any[];
         limits: any;
         id: string;
-        
       }
     }
   }

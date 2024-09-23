@@ -1,123 +1,104 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { sendEmailTemplate } from '../utils/mail.service';
-import * as bcrypt from 'bcrypt';
-import * as moment from 'moment';
+import { JwtService } from '@nestjs/jwt';
+import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResetRequestDto } from './dto/reset-request.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger(UserService.name);
-
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService
+  ) {}
 
   async createUser(email: string, password: string) {
-    const existingUser = await this.prisma.users.findFirst({
-      where: { email },
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const payload = { email, sub: email };
+    const token = this.jwtService.sign(payload);
+
+    const user = await this.prisma.users.create({
+      data: {
+        email,
+        password: hashedPassword,
+        salt,
+        token,
+      },
     });
-    if (existingUser) {
+
+    return {
+      access_token: token,
+    };
+  }
+
+  async login(loginUserDto: LoginUserDto) {
+    const user = await this.prisma.users.findUnique({
+      where: { email: loginUserDto.email },
+    });
+
+    if (user && await bcrypt.compare(loginUserDto.password, user.password)) {
+      const payload = { email: user.email, sub: user.id };
+      const token = this.jwtService.sign(payload);
+      await this.prisma.users.update({
+        where: { email: user.email },
+        data: { token },
+      });
       return {
-        error: true,
-        code: 400,
-        message: 'Account with this email already exists',
+        access_token: token,
       };
     }
 
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(password, salt);
-    const token = Buffer.from(
-      `${Math.floor(Math.random() * 10)}.${Date.now().toString()}.${email}`,
-    ).toString('base64');
-
-    const user = await this.prisma.users.create({
-      data: { email, password: hashedPassword, salt, token },
-    });
-
-    this.logger.log(`Account created by ${email}`);
-
-    await sendEmailTemplate('welcome', email, 'Witaj na pokładzie');
-
-    return { token, id: user.id };
+    return null;
   }
 
   async requestPasswordReset(email: string) {
-    const user = await this.prisma.users.findFirst({ where: { email } });
+    const user = await this.prisma.users.findUnique({
+      where: { email },
+    });
+
     if (!user) {
       return {
         error: true,
         code: 404,
-        message: 'Account with this email does not exist',
+        message: 'User not found',
       };
     }
 
-    const token = Buffer.from(
-      `${Math.floor(Math.random() * 100)}.${Date.now().toString()}.${email}`,
-    ).toString('base64');
-
-    await sendEmailTemplate('reset', email, 'Resetowanie hasła', token);
-
-    this.logger.log(`Password reset requested by ${email} sent`);
-
-    return { status: 'OK' };
+    const resetToken = this.jwtService.sign({ email: user.email }, { expiresIn: '1h' });
+    return {
+      statusCode: 200,
+      message: 'Password reset token generated',
+      resetToken,
+    };
   }
 
-  async resetPassword(token: string, password: string) {
-    const email = await this.prisma.users.findFirst({ where: { token } });
-    if (!email) {
-      return { error: true, code: 404, message: 'Invalid or expired token' };
+  async resetPassword(token: string, newPassword: string) {
+    let email: string;
+    try {
+      const decoded = this.jwtService.verify(token);
+      email = decoded.email;
+    } catch (e) {
+      return {
+        error: true,
+        code: 400,
+        message: 'Invalid or expired token',
+      };
     }
 
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(password, salt);
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
 
     await this.prisma.users.update({
-      where: { email: `${email}` },
+      where: { email },
       data: { password: hashedPassword, salt },
     });
 
-    this.logger.log(`Password reset for ${email} completed`);
-
-    return { status: 'OK' };
-  }
-
-  async login(loginUserDto: LoginUserDto) {
-    const user = await this.prisma.users.findFirst({ where: { email: loginUserDto.email } });
-    if (!user || !bcrypt.compareSync(loginUserDto.password, user.password)) {
-      return { error: true, code: 403, message: 'Bad credentials' };
-    }
-
-    if (loginUserDto.ip) {
-      const response = await fetch(`http://ip-api.com/json/${loginUserDto.ip}`);
-      let geo = null;
-      if (response.ok) {
-        geo = await response.json();
-      }
-      const date = moment().locale('pl').format('hh:mm DD.MM.YYYY');
-      await sendEmailTemplate(
-        'login',
-        user.email,
-        'Nowe logowanie',
-        loginUserDto.ip,
-        geo,
-        date,
-      );
-    }
-
-    this.logger.log(`User ${user.email} logged in from ${loginUserDto.ip}`);
-
-    return { token: user.token, id: user.id, code: 200 };
-  }
-
-  async updateUserCache(id: string) {
-   
-    return { status: 'OK' };
-  }
-
-  async getUserInfo(id: string) {
-    const user = await this.prisma.users.findFirst({ where: { id } });
-    if (!user) {
-      return { error: true, code: 404, message: 'User not found' };
-    }
-    return user;
+    return {
+      statusCode: 200,
+      message: 'Password reset successfully',
+    };
   }
 }

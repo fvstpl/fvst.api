@@ -56,7 +56,6 @@ export class ShopService {
       data: shops,
     };
   }
-
   async updateShop(
     shopId: string,
     updateData: Partial<CreateShopDto>,
@@ -92,12 +91,10 @@ export class ShopService {
       data: {
         id: shop.data.id,
         name: shop.data.name,
-      
       },
     };
   }
 
- 
   async getAllShopsStatus() {
     const shops = await this.prisma.shops.findMany();
     return {
@@ -105,9 +102,7 @@ export class ShopService {
       data: shops.map(shop => ({
         id: shop.id,
         name: shop.name,
-       
       })),
     };
   }
 }
-
