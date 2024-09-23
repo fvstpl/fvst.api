@@ -10,7 +10,6 @@ export class ShopService {
     const apiKey = await this.generateApiKey();
     const shop = await this.prisma.shops.create({
       data: {
-        fee: 10, 
         name: createShopDto.name,
         label: createShopDto.label,
         domain: createShopDto.domain,
