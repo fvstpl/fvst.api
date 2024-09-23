@@ -15,7 +15,7 @@ fvst.api is a backend application built using the NestJS framework. The applicat
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/your-repository/fvst.api.git
+    git clone https://github.com/fvstpl/fvst.api.git
     cd fvst.api
     ```
 
