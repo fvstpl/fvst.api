@@ -98,7 +98,6 @@ export class UserController {
     }
 
     const userId = id === '@me' ? req.user.id : id;
-    // Usuń wywołanie updateUserCache, ponieważ nie istnieje w UserService
     res.status(200).json({ message: 'Update user cache not implemented' });
   }
 
@@ -113,7 +112,6 @@ export class UserController {
     }
 
     const userId = id === '@me' ? req.user.id : id;
-    // Usuń wywołanie getUserInfo, ponieważ nie istnieje w UserService
     res.status(200).json({ message: 'Get user info not implemented' });
   }
 }

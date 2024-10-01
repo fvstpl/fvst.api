@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { ShopService } from '../shop/shop.service';
 import { JwtService } from '@nestjs/jwt';
@@ -13,22 +13,28 @@ export class StoreOwnerGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
-        const token = request.headers?.['authorization']?.split(' ')[1];
+        const authorizationHeader = request.headers['authorization'];
+        
+        if (!authorizationHeader) {
+            throw new UnauthorizedException('Authorization header not found');
+        }
+
+        const token = authorizationHeader.split(' ')[1];
         const isCreatingShop = request.method === 'POST' && request.url.includes('/new');
         
         if (!token) {
-            return false;
+            throw new UnauthorizedException('Token not found');
         }
 
         let user;
         try {
             user = this.jwtService.verify(token);
         } catch (e) {
-            return false;
+            throw new UnauthorizedException('Invalid token');
         }
 
         if (!user) {
-            return false;
+            throw new UnauthorizedException('Invalid user');
         }
         
         if (isCreatingShop) {
@@ -38,8 +44,8 @@ export class StoreOwnerGuard implements CanActivate {
 
         const shopId = request.params.id;
         const shop = await this.shopService.findShopById(shopId);
-        if (!shop || shop.data.userId !== user.id) {
-            return false;
+        if (!shop || shop.data.userId !== user.sub) {
+            throw new UnauthorizedException('Unauthorized');
         }
 
         request.user = user;

@@ -13,6 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
     signOptions: { expiresIn: '1h' },
   })],
   controllers: [ShopController],
+  exports: [ShopService],
   providers: [ShopService, PrismaService, StoreOwnerGuard],
 })
 export class ShopModule {}

@@ -29,4 +29,36 @@ model Shops {
   apiKey      String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @default(now()) @updatedAt
+  categories  Categories[]
+  products    Products[]
+}
+
+model Products {
+  id              String      @id @default(uuid())
+  categories      Categories? @relation(fields: [categoriesId], references: [id])
+  categoriesId    String?
+  shops           Shops       @relation(fields: [shopId], references: [id])
+  shopId          String
+  label           String
+  icon            String?
+  hasVariants     Boolean     @default(false)
+  variants        Json?       @default("{}")
+  price           Decimal
+  description     String
+  descriptionHtml String
+  actions         Json        @default("[]")
+  fields          Json        @default("[]")
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @default(now()) @updatedAt
+}
+
+model Categories {
+  id        String     @id @default(uuid())
+  shopId    String
+  shop      Shops      @relation(fields: [shopId], references: [id])
+  label     String
+  icon      String?
+  products  Products[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
 }
