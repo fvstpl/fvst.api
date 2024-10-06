@@ -40,7 +40,7 @@ model Shops {
   stats       ShopStats[]
   fee         Int          @default(10)
   balance     Float        @default(0) @db.Float()
-  oldBalance  Float        @default(0) @db.Float() 
+  oldBalance  Float        @default(0) @db.Float()
   servers     Servers[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @default(now()) @updatedAt
@@ -63,26 +63,23 @@ model Categories {
   shop      Shops      @relation(fields: [shopId], references: [id])
   label     String
   icon      String?
-  products  Products[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @default(now()) @updatedAt
 }
 
 model Products {
   id              String      @id @default(uuid())
-  categories      Categories? @relation(fields: [categoriesId], references: [id])
-  categoriesId    String?
   shops           Shops?      @relation(fields: [shopId], references: [id])
-  shopId          String?
+  shopId          String
   label           String
   icon            String?
   hasVariants     Boolean     @default(false)
   variants        Json?       @default("{}")
   price           Decimal
   description     String
-  descriptionHtml String
   actions         Json        @default("[]")
   fields          Json        @default("[]")
+  categoryId      String?     @default(uuid())
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @default(now()) @updatedAt
 }

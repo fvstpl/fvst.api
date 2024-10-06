@@ -12,53 +12,60 @@ model Users {
   email     String   @unique
   password  String
   salt      String
-  token     String   @db.Text()
+  token     String   @db.Text
   role      String   @default("user")
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  shops Shops[]
+  shops     Shops[]
 }
 
 model Shops {
-  id          String       @id @default(uuid())
-  userId      String
-  user        Users        @relation(fields: [userId], references: [id])
-  label       String
-  name        String       @unique
-  domain      String?
-  apiKey      String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @default(now()) @updatedAt
-  categories  Categories[]
-  products    Products[]
+  id         String       @id @default(uuid())
+  userId     String
+  label      String
+  name       String       @unique
+  domain     String?
+  apiKey     String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now()) @updatedAt
+  categories Categories[]
+  products   Products[]
+  user       Users        @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "Shops_userId_fkey")
 }
 
 model Products {
   id              String      @id @default(uuid())
-  categories      Categories? @relation(fields: [categoriesId], references: [id])
   categoriesId    String?
-  shops           Shops       @relation(fields: [shopId], references: [id])
   shopId          String
   label           String
   icon            String?
   hasVariants     Boolean     @default(false)
-  variants        Json?       @default("{}")
+  variants        String?     @db.LongText
   price           Decimal
   description     String
   descriptionHtml String
-  actions         Json        @default("[]")
-  fields          Json        @default("[]")
+  actions         String      @db.LongText
+  fields          String      @db.LongText
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @default(now()) @updatedAt
+  categories      Categories? @relation(fields: [categoriesId], references: [id])
+  shops           Shops       @relation(fields: [shopId], references: [id])
+
+  @@index([categoriesId], map: "Products_categoriesId_fkey")
+  @@index([shopId], map: "Products_shopId_fkey")
 }
 
 model Categories {
   id        String     @id @default(uuid())
   shopId    String
-  shop      Shops      @relation(fields: [shopId], references: [id])
   label     String
   icon      String?
-  products  Products[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @default(now()) @updatedAt
+  shop      Shops      @relation(fields: [shopId], references: [id])
+  products  Products[]
+
+  @@index([shopId], map: "Categories_shopId_fkey")
 }

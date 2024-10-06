@@ -1,13 +1,12 @@
 export class CreateProductDto {
-  shopId: string;
   label: string;
   icon?: string;
   hasVariants?: boolean;
-  variants?: object;
+  variants?: any;
   price: number;
   description: string;
-  descriptionHtml: string;
-  actions?: object;
-  fields?: object;
-  categoriesId?: string;
+  actions?: any;
+  fields?: any;
+  shopId: string;
+  categoriesId?: string | null; // Dodaj `| null`, jeśli może przyjmować wartość null
 }
