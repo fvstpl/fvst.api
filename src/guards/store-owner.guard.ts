@@ -14,15 +14,18 @@ export class StoreOwnerGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const authorizationHeader = request.headers['authorization'];
-        
+        console.log(authorizationHeader);
         if (!authorizationHeader) {
             throw new UnauthorizedException('Authorization header not found');
         }
 
         const token = authorizationHeader.split(' ')[1];
+        
         const isCreatingShop = request.method === 'POST' && request.url.includes('/new');
         
         if (!token) {
+            console.log(authorizationHeader);
+
             throw new UnauthorizedException('Token not found');
         }
 

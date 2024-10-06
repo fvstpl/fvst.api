@@ -1,18 +1,21 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards, Headers, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { AuthGuard } from '../guards/auth.guard';
 import { StoreOwnerGuard } from '../guards/store-owner.guard';
 
 @Controller('product')
-@UseGuards(AuthGuard)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
   @UseGuards(StoreOwnerGuard)
-  async createProduct(@Body() productData: CreateProductDto): Promise<any> {
-    return this.productService.createProduct(productData);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async createProduct(
+    @Body() productData: CreateProductDto,
+    @Headers('authorization') authorization: string | undefined,
+  ): Promise<any> {
+    return this.productService.createProduct(productData, authorization);
   }
 
   @Get('shop/:shopId')

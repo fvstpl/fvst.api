@@ -45,8 +45,8 @@ export class ShopService {
     };
   }
   
-
   private getUserIdFromToken(token: string): string {
+
     try {
       const decoded = this.jwtService.decode(token, {json: true});
       console.log(decoded);
