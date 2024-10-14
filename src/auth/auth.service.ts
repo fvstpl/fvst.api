@@ -24,7 +24,7 @@ export class AuthService {
     }
 
     const userId = (await this.prisma.users.findUnique({ where: { email } })).id;
-    const accessToken = this.jwtService.sign({ email:email, sub: userId });
+    const accessToken = this.jwtService.sign({ email: email, sub: userId }, { expiresIn: 'never' }); // Token nie wygasa
     const accountToken = crypto.createHash('sha256').update(user.access_token).digest('hex');
 
     return { accessToken, accountToken, id: userId };
