@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
-	"fvst-api/database"
-	"fvst-api/model"
-	"fvst-api/utility"
+	"fvst-api/src/database"
+	"fvst-api/src/model"
+	"fvst-api/src/utility"
 	"time"
 
 	"github.com/gin-gonic/gin"

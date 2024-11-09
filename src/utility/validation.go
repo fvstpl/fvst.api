@@ -2,8 +2,8 @@ package utility
 
 import (
 	"encoding/json"
-	"fvst-api/database"
-	"fvst-api/model"
+	"fvst-api/src/database"
+	"fvst-api/src/model"
 	"strings"
 	"time"
 

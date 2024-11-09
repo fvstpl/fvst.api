@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
-	"fvst-api/config"
+	"fvst-api/src/config"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

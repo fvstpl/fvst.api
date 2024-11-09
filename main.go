@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fvst-api/config"
-	"fvst-api/database"
-	"fvst-api/handler"
+	"fvst-api/src/config"
+	"fvst-api/src/database"
+	"fvst-api/src/handler"
 	"log"
 
 	"github.com/gin-gonic/gin"

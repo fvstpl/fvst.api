@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
-	"fvst-api/config"
+	"fvst-api/src/config"
 
 	"github.com/redis/go-redis/v9"
 )
