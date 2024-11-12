@@ -15,7 +15,7 @@ func IsValidEmail(email string) bool {
 }
 
 func IsValidPassword(password string) bool {
-	return len(password) >= 6 &&
+	return len(password) >= 8 &&
 		strings.ContainsAny(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") &&
 		strings.ContainsAny(password, "abcdefghijklmnopqrstuvwxyz") &&
 		strings.ContainsAny(password, "!@#$%^&*()_+-=[]{}|;:,.<>?") &&
